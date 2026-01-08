@@ -1,0 +1,20 @@
+{
+    "name": "@noraizen/server",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "tsx watch src/index.ts",
+        "build": "tsup src/index.ts --format esm --dts",
+        "start": "node dist/index.js"
+    },
+    "dependencies": {
+        "hono": "^4.0.0",
+        "@hono/node-server": "^1.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "typescript": "^5",
+        "tsx": "^4.0.0",
+        "tsup": "^8.0.0"
+    }
+}

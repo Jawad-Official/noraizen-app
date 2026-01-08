@@ -1,0 +1,94 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  spaces    Space[]
+  superTags SuperTag[]
+  focusSessions FocusSession[]
+}
+
+// Space model
+model Space {
+  id        String   @id @default(cuid())
+  name      String
+  icon      String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  blocks    Block[]
+}
+
+// Block model
+model Block {
+  id          String     @id @default(cuid())
+  type        BlockType
+  content     Json       // Tiptap JSON content
+  properties  Json       @default("{}")
+  spaceId     String
+  space       Space      @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  parentId    String?
+  parent      Block?     @relation("BlockHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children    Block[]    @relation("BlockHierarchy")
+  order       Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  tags        SuperTag[] @relation("BlockTags")
+}
+
+enum BlockType {
+  TEXT
+  TASK
+  NOTE
+  PROJECT
+  CALENDAR
+  TIMELINE
+  CHART
+  EMPTY
+}
+
+// SuperTag model
+model SuperTag {
+  id        String   @id @default(cuid())
+  name      String
+  icon      String?
+  color     String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  // Relations
+  blocks    Block[]  @relation("BlockTags")
+}
+
+// Focus Session model
+model FocusSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  duration  Int      // minutes
+  blockId   String?
+  startedAt DateTime
+  endedAt   DateTime
+  createdAt DateTime @default(now())
+}
